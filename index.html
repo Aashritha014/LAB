@@ -119,41 +119,37 @@ button:hover{
 <script>
 
 async function copyCode(filename) {
-
     try {
-
         const response = await fetch(`codes/${filename}`);
 
-        if(!response.ok){
-            throw new Error("File not found");
+        if (!response.ok) {
+            throw new Error(`HTTP Error: ${response.status}`);
         }
 
         const code = await response.text();
 
-        await navigator.clipboard.writeText(code);
+        try {
+            await navigator.clipboard.writeText(code);
+            showToast("Copied Successfully!");
+        } catch (clipboardError) {
 
-        showToast(`${filename.replace('.txt','')} copied successfully!`);
+            const textarea = document.createElement("textarea");
+            textarea.value = code;
+
+            document.body.appendChild(textarea);
+            textarea.select();
+
+            document.execCommand("copy");
+
+            document.body.removeChild(textarea);
+
+            showToast("Copied Successfully!");
+        }
 
     } catch(error) {
-
         console.error(error);
-        showToast("Failed to copy code");
-
+        showToast(error.message);
     }
-}
-
-function showToast(message){
-
-    const toast = document.createElement("div");
-
-    toast.className = "toast";
-    toast.innerText = message;
-
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-        toast.remove();
-    }, 2000);
 }
 
 </script>
